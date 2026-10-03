@@ -9,8 +9,6 @@ info:
 menu:
   articles || uc-article:
     archives: /archives || uc-archive
-    categories: /categories || uc-category
-    tags: /tags || uc-tag
 menu_options:
   font_color:
     light: '#4b4b4b'
@@ -45,3 +43,22 @@ banner:
   title_color:
     light: '#fff'
     dark: '#e0e0e0'
+error_page: true
+page_view:
+  enable: true
+  url: https://cn.vercount.one/js
+  site_pv: true
+  site_uv: true
+  page_pv: true
+tag:
+  style: 2
+  show_count: true
+  color: true
+  start_color: '#D3D3D3'
+  end_color: '#FFB347'
+category:
+  depth: 1
+  fold: false
+share:
+  notify: true
+  share_text: 'meow~'
