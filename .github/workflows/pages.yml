@@ -1,0 +1,112 @@
+name: Deploy Hexo Meow to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+env:
+  # _config.yml、package.json 所在目录；若位于 hexo/，改为 ./hexo
+  HEXO_DIR: .
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Check Hexo project
+        working-directory: ${{ env.HEXO_DIR }}
+        shell: bash
+        run: |
+          test -f _config.yml || { echo '::error::Missing _config.yml in HEXO_DIR'; exit 1; }
+          test -f package.json || { echo '::error::Missing package.json. Install dependencies in the Hexo project and commit package.json and package-lock.json.'; exit 1; }
+
+      - name: Install dependencies
+        working-directory: ${{ env.HEXO_DIR }}
+        shell: bash
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --include=dev
+          else
+            npm install --include=dev
+          fi
+          node -e "require.resolve('hexo'); require.resolve('hexo-renderer-pug')"
+          test -x node_modules/.bin/hexo || { echo '::error::Install hexo-cli in this project'; exit 1; }
+
+      - name: Prepare Meow theme
+        working-directory: ${{ env.HEXO_DIR }}
+        shell: bash
+        run: |
+          # 优先使用已提交的主题或子模块，保留自定义主题配置。
+          if [ ! -d themes/meow/layout ]; then
+            if [ -d themes/meow ] && [ -n "$(ls -A themes/meow)" ]; then
+              echo '::error::themes/meow exists but has no layout directory. Check the theme files or submodule.'
+              exit 1
+            fi
+            mkdir -p themes
+            git clone --depth 1 https://github.com/chanwj/hexo-theme-meow.git themes/meow
+          fi
+
+      - name: Generate website
+        working-directory: ${{ env.HEXO_DIR }}
+        shell: bash
+        run: |
+          ./node_modules/.bin/hexo clean
+          ./node_modules/.bin/hexo generate --debug
+          test -s public/index.html || { echo '::error::public/index.html is missing or empty'; exit 1; }
+
+      - name: Prepare Pages artifact
+        shell: bash
+        run: |
+          mkdir -p dist/hexo
+          # 匹配站点配置中的 root: /hexo/
+          cp -a "$HEXO_DIR/public/." dist/hexo/
+          # 如果有个人主页，部署到网站根目录。
+          if [ -d site ]; then
+            cp -a site/. dist/
+          fi
+          # 没有个人主页时，网站根目录跳转到博客。
+          if [ ! -f dist/index.html ]; then
+            printf '%s\n' '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/hexo/"><title>Hexo</title><a href="/hexo/">进入博客</a></html>' > dist/index.html
+          fi
+          touch dist/.nojekyll
+          test -s dist/hexo/index.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
