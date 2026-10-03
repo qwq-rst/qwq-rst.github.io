@@ -1,0 +1,47 @@
+global:
+  icon:
+    type: uc
+  selectable: true
+  onblur_title: "qwq" 
+  mouse_click_style: true 
+info:
+  avatar: https://cdn.luogu.com.cn/upload/usericon/1442736.png
+menu:
+  articles || uc-article:
+    archives: /archives || uc-archive
+    categories: /categories || uc-category
+    tags: /tags || uc-tag
+menu_options:
+  font_color:
+    light: '#4b4b4b'
+    dark: '#bebec6'
+banner:
+  image:
+    light: https://cdn.luogu.com.cn/images/bg/fe/luogu4-bg-l.jpg
+    dark: https://cdn.luogu.com.cn/images/bg/fe/Van_Gogh_The_Starry_Night.jpeg
+    is_fixed: true
+    position: center top
+    repeat: no-repeat
+  avatar:
+    type: site
+    shape: 1
+    border: false
+  title:
+    enable: true
+    text: 「 MEOW 」
+  subtitle:
+    enable: true
+    text:
+      - "QWQ"
+    effect: true 
+    type_speed: 100
+    back_speed: 150
+    start_delay: 500
+    back_delay: 1500 
+    loop: true
+    smart_backspace: true
+    fade_out: true
+    shuffle: false
+  title_color:
+    light: '#fff'
+    dark: '#e0e0e0'
