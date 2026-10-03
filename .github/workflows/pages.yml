@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # _config.yml、package.json 所在目录；若位于 hexo/，改为 ./hexo
-  HEXO_DIR: .
+  # _config.yml、package.json 所在目录
+  HEXO_DIR: ./hexo
 
 jobs:
   build:
@@ -23,7 +23,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          submodules: recursive
+          # 仓库的 Meow 子模块缺少 URL，改由后面的步骤下载主题。
+          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -54,7 +55,7 @@ jobs:
         working-directory: ${{ env.HEXO_DIR }}
         shell: bash
         run: |
-          # 优先使用已提交的主题或子模块，保留自定义主题配置。
+          # 优先使用已提交的完整主题文件，保留自定义主题配置。
           if [ ! -d themes/meow/layout ]; then
             if [ -d themes/meow ] && [ -n "$(ls -A themes/meow)" ]; then
               echo '::error::themes/meow exists but has no layout directory. Check the theme files or submodule.'
