@@ -21,9 +21,9 @@ FHQ-Treap 也是一种 BST，所以也是二叉树，自然单个节点需记录
 ```cpp
 struct node
 {
-	node* ch[2];\/\/左右儿子
-	int x;\/\/值
-	int cnt,sz,rd;\/\/与这个点值相同的点个数，子树节点个数，随机值。
+	node* ch[2];//左右儿子
+	int x;//值
+	int cnt,sz,rd;//与这个点值相同的点个数，子树节点个数，随机值。
 	node(int v)
 	{
 		x=v;
@@ -109,7 +109,7 @@ node *merge(node* l,node* r)
 		{
 			return l;
 		}
-		if(l->rd<r->rd)\/\/只是跟描述反过来了而已
+		if(l->rd<r->rd)//只是跟描述反过来了而已
 		{
 			l->ch[1]=merge(l->ch[1],r);
 			l->Update();
@@ -127,7 +127,7 @@ node *merge(node* l,node* r)
 
 也是分裂，只不过是跟据一个排名 $rk$，且要分裂成三颗树。
 
-为了方便，这里介绍一种 STL：[tuple](https:\/\/blog.csdn.net\/m0_63997099\/article\/details\/136988487)。
+为了方便，这里介绍一种 STL：[tuple](https://blog.csdn.net/m0_63997099/article/details/136988487)。
 
 分裂出的三棵树分别为：最大排名小于 $rk$ 的，最大排名等于 $rk$ 的，最小排名大于 $rk$ 的。
 
@@ -138,12 +138,12 @@ node *merge(node* l,node* r)
 
 tuple<node*,node*,node*>split_rk(node* cur,int rk)
 	{
-		if(cur==nullptr)\/\/为空
+		if(cur==nullptr)//为空
 		{
 			return make_tuple(nullptr,nullptr,nullptr);
 		}
-		int lssz;\/\/左子树节点个数
-		if(cur->ch[0]==nullptr)\/\/注意左子树有可能为空
+		int lssz;//左子树节点个数
+		if(cur->ch[0]==nullptr)//注意左子树有可能为空
 		{
 			lssz=0;
 		}
@@ -151,32 +151,32 @@ tuple<node*,node*,node*>split_rk(node* cur,int rk)
 		{
 			lssz=cur->ch[0]->sz;
 		}
-		if(rk<=lssz)\/\/根节点排名大于rk
+		if(rk<=lssz)//根节点排名大于rk
 		{
 			node *l,*mid,*r;
-      \/\/tie绑定函数，有兴趣可以自己看看
-			tie(l,mid,r)=split_rk(cur->ch[0],rk);\/\/右子树排名关系确定，分裂左子树
+      //tie绑定函数，有兴趣可以自己看看
+			tie(l,mid,r)=split_rk(cur->ch[0],rk);//右子树排名关系确定，分裂左子树
 			cur->ch[0]=r;
 			cur->Update();
 			return make_tuple(l,mid,cur);
 		}
-		else if(rk<=lssz+cur->cnt)\/\/根节点排名大于等于rk
+		else if(rk<=lssz+cur->cnt)//根节点排名大于等于rk
 		{
 			node* l=cur->ch[0];
 			node* r=cur->ch[1];
 			cur->ch[0]=cur->ch[1]=nullptr;
 			return make_tuple(l,cur,r);
 		}
-		else\/\/根节点排名小于rk
+		else//根节点排名小于rk
 		{
-			node *l,*mid,*r;\/\/同理
+			node *l,*mid,*r;//同理
 			tie(l,mid,r)=split_rk(cur->ch[1],rk-lssz-cur->cnt);
 			cur->ch[1]=l;
 			cur->Update();
 			return make_tuple(cur,mid,r);
 		}
 	}
-\/\/限于篇幅，所以可能讲的不太清楚，还请各位大佬不要介意。
+//限于篇幅，所以可能讲的不太清楚，还请各位大佬不要介意。
 ```
 ---
 ### 插入 insert
@@ -214,7 +214,7 @@ void insert(int x)
 		}
 		root=merge(tmp2,tmp.second);
 	}
-\/\/其实也没多难
+//其实也没多难
 ```
 
 ### 删除 erase
@@ -240,7 +240,7 @@ void erase(int x)
 			{
 				tmp.first=nullptr;
 			}
-			delete ltr.second;\/\/内存释放
+			delete ltr.second;//内存释放
 			ltr.second=nullptr;
 		}
 		root=merge(ltr.first,tmp.second);
@@ -322,14 +322,14 @@ T query_next(T x)
 ---
 
 ## 例题
-[P3369	【模板】普通平衡树](https:\/\/www.luogu.com.cn\/problem\/P3369)
+[P3369	【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
 
 就是模板。
 
 代码：
 
 ```cpp
-#include<bits\/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
 using T=int;
 T INF=1000000000;
@@ -549,7 +549,7 @@ Treap t;
 int main()
 {
 	srand(time(0));
-	\/\/qwq
+	//qwq
 	int q;
 	cin>>q;
 	while(q--)
@@ -561,22 +561,22 @@ int main()
 			int x;
 			cin>>x;
 			t.insert(x);
-			\/*for(int i=1;i<=t.root->sz;i++)
+			/*for(int i=1;i<=t.root->sz;i++)
 			{
 				cout<<t.query_v(i,t.root)<<",";
 			}
-			cout<<"\n";*\/
+			cout<<"\n";*/
 		}
 		else if(opt==2)
 		{
 			int x;
 			cin>>x;
 			t.erase(x);
-			\/*for(int i=1;i<=t.root->sz;i++)
+			/*for(int i=1;i<=t.root->sz;i++)
 			{
 				cout<<t.query_v(i,t.root)<<",";
 			}
-			cout<<"\n";*\/
+			cout<<"\n";*/
 		}
 		else if(opt==3)
 		{
